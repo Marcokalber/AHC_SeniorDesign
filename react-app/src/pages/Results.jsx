@@ -1,6 +1,145 @@
 // src/pages/Results.jsx
 import React from "react";
 
+const PROPERTY_ARRAY_KEYS = [
+    "properties",
+    "matched_properties",
+    "matching_properties",
+    "matches",
+    "results",
+    "data",
+    "items",
+    "listings",
+];
+
+const LINK_KEYS = [
+    "url",
+    "link",
+    "website",
+    "property_url",
+    "propertyLink",
+    "application_url",
+    "apply_url",
+];
+
+function normalizeObject(value) {
+    if (!value) return null;
+    if (typeof value === "string") {
+        try {
+            return JSON.parse(value);
+        } catch {
+            return null;
+        }
+    }
+
+    return typeof value === "object" ? value : null;
+}
+
+function pickLink(item) {
+    for (const key of LINK_KEYS) {
+        if (typeof item?.[key] === "string" && item[key].trim()) {
+            return item[key].trim();
+        }
+    }
+
+    return "";
+}
+
+function buildFallbackLink(name, address) {
+    const query = [name, address].filter(Boolean).join(" ").trim();
+    if (!query) return "";
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
+function formatAmiPercent(value) {
+    if (value === null || value === undefined || value === "") return "N/A";
+
+    if (typeof value === "string") {
+        const trimmed = value.trim();
+        if (!trimmed) return "N/A";
+        if (trimmed.includes("%")) return trimmed;
+
+        const numericFromString = Number(trimmed);
+        if (Number.isNaN(numericFromString)) return trimmed;
+
+        const percentValue = numericFromString > 0 && numericFromString <= 1
+            ? numericFromString * 100
+            : numericFromString;
+        return `${percentValue}%`;
+    }
+
+    if (typeof value === "number") {
+        if (!Number.isFinite(value)) return "N/A";
+        const percentValue = value > 0 && value <= 1 ? value * 100 : value;
+        return `${percentValue}%`;
+    }
+
+    return String(value);
+}
+
+function toPropertyCards(payload) {
+    if (!payload || typeof payload !== "object") return [];
+
+    const candidates = [];
+
+    if (Array.isArray(payload)) {
+        candidates.push(...payload);
+    }
+
+    for (const key of PROPERTY_ARRAY_KEYS) {
+        const value = normalizeObject(payload[key]);
+        if (Array.isArray(value)) candidates.push(...value);
+    }
+
+    if (Array.isArray(payload.results)) {
+        candidates.push(...payload.results);
+    }
+
+    // Handle a single-property payload.
+    if (candidates.length === 0 && (payload.name || payload.property_name || payload.address)) {
+        candidates.push(payload);
+    }
+
+    return candidates
+        .filter((item) => item && typeof item === "object")
+        .map((item, index) => {
+            const name =
+                item.property_name ||
+                item.propertyName ||
+                item.name ||
+                item.development_name ||
+                `Property ${index + 1}`;
+
+            const address =
+                item.address ||
+                [item.street, item.city, item.state, item.zip].filter(Boolean).join(", ") ||
+                item.location ||
+                "Address not provided";
+
+            const ami =
+                item.ami_level ||
+                item.ami ||
+                item.ami_limit_percent ||
+                item.ami_percentage ||
+                item.income_limit;
+
+            const units = item.units_available || item.units || item.bedrooms || "N/A";
+            const rent = item.rent || item.monthly_rent || item.price || "N/A";
+            const link = pickLink(item);
+            const fallbackLink = buildFallbackLink(name, address);
+
+            return {
+                id: item.id || item.property_id || `${name}-${index}`,
+                name,
+                address,
+                ami: formatAmiPercent(ami),
+                units,
+                rent,
+                link: link || fallbackLink,
+            };
+        });
+}
+
 export default function Results() {
 const raw = localStorage.getItem("housingResults");
 let data = null;

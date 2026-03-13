@@ -5,11 +5,11 @@ export default function FooterMap() {
     <section className="py-5 main_sec">
       <div className="container text-center">
 
-        <h2 className="fw-bold text-white mb-3">
+        <h2 className="fw-bold" style={{ color: "#1f2937" }}>
           Housing Resources Near You
         </h2>
 
-        <p className="text-white mb-4">
+        <p style={{ color: "#374151" }} className="mb-0">
           Explore affordable housing opportunities across Collier County.
         </p>
 

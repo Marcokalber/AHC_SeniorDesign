@@ -40,3 +40,22 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Hide native scrollbars for the horizontal ribbon while keeping it accessible */
+.infinite-ribbon {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.infinite-ribbon::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Keep focus visible for keyboard users */
+.infinite-ribbon:focus {
+  outline: 3px solid rgba(59,130,246,0.25);
+  outline-offset: 4px;
+}
+
+/* Prev/Next buttons for the ribbon */
+/* ribbon buttons removed (we allow native scrolling) */
+

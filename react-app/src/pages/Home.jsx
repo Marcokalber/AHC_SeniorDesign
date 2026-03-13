@@ -1,10 +1,72 @@
 // src/pages/Home.jsx
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import ApplicationModal from "../components/ApplicationModal";
 import FooterMap from "../components/FooterMap";
+import { toPropertyCards, getStoredProperties } from "./Results";
 
 export default function Home() {
   const [showModal, setShowModal] = useState(false);
+
+  // load properties from localStorage (if available)
+  const properties = getStoredProperties();
+
+  // infinite scroll refs/state
+  const ribbonRef = useRef(null);
+  const shouldInfinite = properties.length > 1;
+  const displayedItems = shouldInfinite ? [...properties, ...properties, ...properties] : properties;
+
+  useEffect(() => {
+    const el = ribbonRef.current;
+    if (!el || !shouldInfinite) return;
+
+    // When items are tripled, set initial scroll to the middle group
+    const setToMiddle = () => {
+      const total = el.scrollWidth;
+      const groupWidth = total / 3;
+      el.scrollLeft = groupWidth;
+    };
+
+    // small timeout to allow layout/paint
+    const t = setTimeout(setToMiddle, 50);
+
+    let isAdjusting = false;
+
+    const onScroll = () => {
+      if (!el || isAdjusting) return;
+      const total = el.scrollWidth;
+      const groupWidth = total / 3;
+      const left = el.scrollLeft;
+
+      // if we've scrolled into the first third, jump forward one group
+      if (left < groupWidth * 0.2) {
+        isAdjusting = true;
+        el.scrollLeft = left + groupWidth;
+        requestAnimationFrame(() => (isAdjusting = false));
+        return;
+      }
+
+      // if we've scrolled into the last third, jump back one group
+      if (left > groupWidth * 1.8) {
+        isAdjusting = true;
+        el.scrollLeft = left - groupWidth;
+        requestAnimationFrame(() => (isAdjusting = false));
+      }
+    };
+
+    el.addEventListener("scroll", onScroll, { passive: true });
+    const onResize = () => {
+      // recenter on resize
+      setToMiddle();
+    };
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      clearTimeout(t);
+      el.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [shouldInfinite, properties.length]);
+  
 
   return (
     <>
@@ -38,46 +100,80 @@ export default function Home() {
         <div className="container">
           <div className="text-center mb-4">
             <h2 className="fw-bold" style={{ color: "#1f2937" }}>
-              How does it work?
+              Housing Options
             </h2>
             <p style={{ color: "#374151" }} className="mb-0">
-              Quick guide for new users, just following this three simple steps.
+              These are the most popular options for affordable housing.
             </p>
           </div>
+        </div>
 
-          <div className="row g-4">
-            <div className="col-12 col-md-4">
-              <div className="glass-card">
-                <h5 className="fw-bold" style={{ color: "#1f2937" }}>
-                  1) Tell Us About Your Situation
-                </h5>
-                <p style={{ color: "#4b5563" }}>
-                  Fill a simple form with income, family size, and location.
-                </p>
-              </div>
-            </div>
+        {/* full-bleed horizontal ribbon */}
+        <div className="container-fluid px-0">
+          <div
+            ref={ribbonRef}
+            className="d-flex infinite-ribbon"
+            role="list"
+            aria-label="Housing options"
+            style={{
+              gap: "1rem",
+              overflowX: "auto",
+              paddingBottom: "1rem",
+              WebkitOverflowScrolling: "touch",
+              paddingLeft: "1rem",
+              paddingRight: "1rem",
+              scrollBehavior: "auto",
+            }}
+          >
+            {displayedItems.length > 0 ? (
+              displayedItems.map((p, idx) => (
+                <div key={`${p.id}-${idx}`} role="listitem" style={{ minWidth: 300, flex: "0 0 auto" }}>
+                  <div className="glass-card">
+                    <h5 className="fw-bold" style={{ color: "#1f2937" }}>
+                      {p.name}
+                    </h5>
+                    <p style={{ color: "#4b5563" }} className="mb-2">
+                      {p.address}
+                    </p>
 
-            <div className="col-12 col-md-4">
-              <div className="glass-card">
-                <h5 className="fw-bold" style={{ color: "#1f2937" }}>
-                  2) Get Recommendations
-                </h5>
-                <p style={{ color: "#4b5563" }}>
-                  Receive program and housing matches based on your eligibility.
-                </p>
-              </div>
-            </div>
+                    <div className="property-meta">
+                      <div><strong>AMI:</strong> {p.ami}</div>
+                      <div><strong>Units:</strong> {p.units}</div>
+                      <div><strong>Rent:</strong> {p.rent}</div>
+                    </div>
 
-            <div className="col-12 col-md-4">
-              <div className="glass-card">
-                <h5 className="fw-bold" style={{ color: "#1f2937" }}>
-                  3) Connect & Apply
-                </h5>
-                <p style={{ color: "#4b5563" }}>
-                  Contact organizations directly and save your progress.
-                </p>
+                    {p.link ? (
+                      <a
+                        className="btn btn-sm btn-primary mt-3"
+                        href={p.link}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        View Property
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div role="listitem" style={{ minWidth: 320, flex: "0 0 auto" }}>
+                <div className="glass-card text-center">
+                  <h5 className="fw-bold" style={{ color: "#1f2937" }}>
+                    No properties to show
+                  </h5>
+                  <p style={{ color: "#4b5563" }}>
+                    Start an application to get personalized housing recommendations.
+                  </p>
+                  <button
+                    type="button"
+                    className="btn btn-primary mt-2"
+                    onClick={() => setShowModal(true)}
+                  >
+                    Start Application
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </section>

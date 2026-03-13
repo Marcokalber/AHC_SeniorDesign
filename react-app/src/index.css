@@ -114,6 +114,24 @@ body.login-open {
   color: #1f2937;
 }
 
+/* Make glass-cards inside the main sections visually match the section background */
+.main_sec .glass-card {
+  /* make the whole card a soft gray so it contrasts slightly with the section */
+  background: #bebfc2e7; /* light gray */
+  border: 1px solid rgba(0,0,0,0.04);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.03);
+}
+
+/* subtle interior panel inside cards to separate property meta from other content */
+.main_sec .glass-card .property-meta {
+  background: rgba(255,255,255,0.6); /* slightly lighter panel inside the gray card */
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-top: 8px;
+  color: #374151;
+  font-size: 14px;
+}
+
 /* ===== BUTTONS ===== */
 .btn.btn-primary {
   background-color: #2f6bff;
