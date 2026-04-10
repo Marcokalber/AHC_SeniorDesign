@@ -13,7 +13,7 @@ export default function FooterMap() {
           Explore affordable housing opportunities across Collier County.
         </p>
 
-        <div className="glass-card overflow-hidden">
+        <div className="glass-card overflow-hidden map-card">
           <iframe
             title="Map"
             src={`https://www.google.com/maps?q=${placeQuery}&output=embed`}

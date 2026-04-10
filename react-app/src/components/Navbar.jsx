@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Container, Nav, Navbar as BSNavbar, Button } from "react-bootstrap";
+import ProfileDropdown from "./ProfileDropdown";
 
-function Navbar({ onOpenLogin, onOpenSignup }) {
+function Navbar({ onOpenLogin, onOpenSignup, user, setUser }) {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("");
 
@@ -38,8 +39,27 @@ function Navbar({ onOpenLogin, onOpenSignup }) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const scrollTo = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    // If we're not on the homepage, navigate there and request the Home
+    // component to scroll after navigation using location state.
+    if (location.pathname !== "/") {
+      navigate("/", { state: { scrollTo: id } });
+      setActiveSection(id);
+      return;
+    }
+
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    // Account for the fixed header so the section is not hidden beneath it.
+    const headerEl = document.querySelector('.header');
+    const headerHeight = headerEl ? headerEl.offsetHeight : 72; // fallback
+    const y = el.getBoundingClientRect().top + window.scrollY - headerHeight - 12; // small gap
+
+    window.scrollTo({ top: y, behavior: 'smooth' });
     setActiveSection(id);
   };
 
@@ -62,38 +82,33 @@ function Navbar({ onOpenLogin, onOpenSignup }) {
               onClick={() => scrollTo("how-it-works")}
               className={activeSection === "how-it-works" ? "active" : ""}
             >
-              How it Works
+              Housing Options
             </Nav.Link>
 
-            <Nav.Link
-              onClick={() => scrollTo("resources")}
-              className={activeSection === "resources" ? "active" : ""}
-            >
-              Resources
-            </Nav.Link>
+            {/* Resources link removed per request */}
 
-            <Nav.Link
-              onClick={() => scrollTo("contact")}
-              className={activeSection === "contact" ? "active" : ""}
-            >
-              Contact
-            </Nav.Link>
+            {!user && (
+              <Nav.Link
+                onClick={() => navigate('/contact')}
+                className={activeSection === "contact" ? "active" : ""}
+              >
+                Contact
+              </Nav.Link>
+            )}
 
-            <Button
-              type="button"
-              className="nav-link"
-              onClick={onOpenLogin}
-            >
-              Log In
-            </Button>
+            {user ? (
+              <ProfileDropdown user={user} onLogout={() => setUser(null)} />
+            ) : (
+              <>
+                <Button type="button" className="nav-link" onClick={onOpenLogin}>
+                  Log In
+                </Button>
 
-            <Button
-              type="button"
-              className="nav-link"
-              onClick={onOpenSignup}
-            >
-              Sign Up
-            </Button>
+                <Button type="button" className="nav-link" onClick={onOpenSignup}>
+                  Sign Up
+                </Button>
+              </>
+            )}
           </Nav>
         </BSNavbar.Collapse>
       </Container>

@@ -1,0 +1,75 @@
+/* layout.css - app shell, sections, and page offsets */
+
+.app-shell {
+  /* Continuous page background from header to footer */
+  background-color: #f7f9fc;
+  min-height: 100vh;
+}
+
+.main_sec {
+  /* Make section backgrounds transparent so the app-shell background is continuous */
+  background-color: transparent;
+  color: #1f2937;
+}
+
+.main_sec2 {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  color: #1f2937;
+}
+
+/* Ensure pages using .page-content start below the fixed header so the
+   header does not overlap the top of the content. Adjust if your header
+   size changes. */
+.page-content {
+  padding-top: 280px; /* increased so the header has more breathing room over the title */
+  /* slightly smaller, tighter text for policy/legal pages */
+  font-size: 15px;
+  line-height: 1.55;
+  color: #374151;
+}
+
+.page-content .container {
+  max-width: 880px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.page-content h1,
+.page-content h2,
+.page-content h3 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.page-content h1 {
+  margin-top: 4rem;
+}
+
+.page-content p,
+.page-content li {
+  font-size: 0.95rem; /* slightly smaller than base */
+  margin-bottom: 0.6rem;
+}
+
+/* Generic class to offset page content below the fixed header for new pages
+   Use on section elements: <section className="... page-offset">.
+   Increased to match `.page-content` so these pages start as low as the
+   Privacy/Policy pages (useful for large fixed headers). */
+.page-offset {
+  /* compute offset from the actual header height plus extra spacing so the
+     content is always fully below the fixed header. The extra value here
+     mirrors the previous large offsets used for `.page-content`. */
+  padding-top: calc(var(--header-height, 72px) + 200px);
+}
+
+@media (max-width: 768px) {
+  .page-offset { padding-top: calc(var(--header-height, 64px) + 136px); }
+  .page-content { padding-top: 200px; font-size: 14px; }
+  .page-content .container { max-width: 680px; }
+}

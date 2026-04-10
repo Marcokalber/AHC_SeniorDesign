@@ -8,12 +8,24 @@ export default function ApplicationModal({ show, handleClose }) {
   useEffect(() => {
     if (!show) return;
 
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    // lock body in place
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    // store the scroll position so we can restore it on close
+    document.body.dataset.modalScrollY = String(scrollY);
 
-    // cleanup al cerrar modal / desmontar
     return () => {
-      document.body.style.overflow = prevOverflow;
+      // restore
+      const stored = Number(document.body.dataset.modalScrollY || 0);
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      delete document.body.dataset.modalScrollY;
+      window.scrollTo(0, stored);
     };
   }, [show]);
 

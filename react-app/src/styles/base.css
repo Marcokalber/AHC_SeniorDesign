@@ -1,0 +1,104 @@
+/* base.css - reset, navbar, and global utilities */
+/* ===== RESET / BASE ===== */
+html,
+body {
+  overflow-x: hidden;
+}
+
+body.login-open {
+  overflow: hidden;
+}
+
+/* ===== NAVBAR ===== */
+.header {
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(18px);
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.header.scrolled {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.header .navbar-brand {
+  font-weight: 700;
+  margin-left: 20px;
+  color: #111827 !important;
+}
+
+.header .nav-link,
+.header .nav-link:link,
+.header .nav-link:visited,
+.header .nav-link:hover,
+.header .nav-link:focus,
+.header .nav-link:focus-visible,
+.header .nav-link:active,
+.header .nav-link.active,
+.header .navbar-collapse .nav-link {
+  color: #111827 !important;
+  transition: color 0.12s ease;
+  text-decoration: none;
+}
+
+.header .nav-link:hover {
+  color: #2f6bff !important;
+}
+
+.header .nav-link.active {
+  color: #2f6bff !important;
+  font-weight: 700;
+}
+
+.header .nav-link,
+.header button {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.header .nav-link:focus {
+  outline: none;
+}
+
+.header .nav-link:focus-visible {
+  outline: 2px solid rgba(47, 107, 255, 0.25);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.header button,
+.header button:focus,
+.header button:active {
+  color: #111827 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0;
+}
+
+.navbar-toggler {
+  border: none;
+}
+
+.navbar-toggler:focus {
+  box-shadow: none;
+}
+
+/* ===== BUTTONS ===== */
+.btn.btn-primary {
+  background-color: #2f6bff;
+  border-color: #2f6bff;
+  color: white;
+}
+
+.btn.btn-primary:hover {
+  background-color: #4a83ff;
+  border-color: #4a83ff;
+}
+
+/* small utility */
+.main_sec h1 { margin-top: 0; }

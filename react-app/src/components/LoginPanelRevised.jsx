@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button, Form } from "react-bootstrap";
 
-function LoginPanel({ isOpen, onClose }) {
+function LoginPanel({ isOpen, onClose, onLoginSuccess }) {
   const [panelOpen, setPanelOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -42,8 +42,17 @@ function LoginPanel({ isOpen, onClose }) {
         return;
       }
 
-      setError("Invalid username or password.");
+      // Simulate successful login for any non-empty credentials.
+      const rawName = formData.email.split("@")[0] || "User";
+      const name = rawName.replace(/[._0-9-]+/g, " ")
+        .split(" ")
+        .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+        .join(" ");
+
+      const user = { name: name || "User", email: formData.email };
       setLoading(false);
+      if (onLoginSuccess) onLoginSuccess(user);
+      if (onClose) onClose();
     }, 1200);
   };
 

@@ -1,11 +1,14 @@
 // src/pages/Home.jsx
 import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import ApplicationModal from "../components/ApplicationModal";
 import FooterMap from "../components/FooterMap";
+import images from "../assets/images";
 import { toPropertyCards, getStoredProperties } from "./Results";
 
 export default function Home() {
   const [showModal, setShowModal] = useState(false);
+  const location = useLocation();
 
   // load properties from localStorage (if available)
   const properties = getStoredProperties();
@@ -16,6 +19,27 @@ export default function Home() {
   const displayedItems = shouldInfinite ? [...properties, ...properties, ...properties] : properties;
 
   useEffect(() => {
+    // If navigated with a scroll request (from Navbar), perform the scroll
+    // after the component mounts and DOM is ready.
+    if (location && location.state && location.state.scrollTo) {
+      const id = location.state.scrollTo;
+      // small timeout to allow layout/paint
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const headerEl = document.querySelector('.header');
+        const headerHeight = headerEl ? headerEl.offsetHeight : 72;
+        const y = el.getBoundingClientRect().top + window.scrollY - headerHeight - 12;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+        // Clear the navigation state so future navigations don't re-trigger
+        try {
+          window.history.replaceState({}, document.title);
+        } catch (e) {
+          // ignore
+        }
+      }, 80);
+    }
+
     const el = ribbonRef.current;
     if (!el || !shouldInfinite) return;
 
@@ -125,16 +149,29 @@ export default function Home() {
               scrollBehavior: "auto",
             }}
           >
-            {displayedItems.length > 0 ? (
-              displayedItems.map((p, idx) => (
-                <div key={`${p.id}-${idx}`} role="listitem" style={{ minWidth: 300, flex: "0 0 auto" }}>
-                  <div className="glass-card">
-                    <h5 className="fw-bold" style={{ color: "#1f2937" }}>
-                      {p.name}
-                    </h5>
-                    <p style={{ color: "#4b5563" }} className="mb-2">
-                      {p.address}
-                    </p>
+            {displayedItems.length > 0 ?
+
+              displayedItems.map((p, idx) => {
+                const imageUrl = p.image || images[idx % images.length];
+                const hasImage = Boolean(imageUrl);
+                const cardStyle = hasImage
+                  ? {
+                      backgroundImage: `linear-gradient(rgba(0,0,0,0.28), rgba(0,0,0,0.12)), url(${imageUrl})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      color: "#ffffff",
+                    }
+                  : {};
+
+                return (
+                  <div key={`${p.id}-${idx}`} role="listitem" style={{ minWidth: 300, flex: "0 0 auto" }}>
+                    <div className={`glass-card ${hasImage ? "has-image" : ""}`} style={cardStyle}>
+                      <h5 className="fw-bold" style={{ color: hasImage ? "#ffffff" : "#1f2937" }}>
+                        {p.name}
+                      </h5>
+                      <p style={{ color: hasImage ? "#f3f4f6" : "#4b5563" }} className="mb-2">
+                        {p.address}
+                      </p>
 
                     <div className="property-meta">
                       <div><strong>AMI:</strong> {p.ami}</div>
@@ -153,9 +190,9 @@ export default function Home() {
                       </a>
                     ) : null}
                   </div>
-                </div>
-              ))
-            ) : (
+                  </div>
+                );
+              }) : (
               <div role="listitem" style={{ minWidth: 320, flex: "0 0 auto" }}>
                 <div className="glass-card text-center">
                   <h5 className="fw-bold" style={{ color: "#1f2937" }}>
@@ -177,6 +214,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Contact card placed outside the updates glass-card */}
+      {/* contact moved to its own /contact page */}
 
       {/* MAP */}
       <FooterMap />

@@ -1,22 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form, Button, Row, Col } from "react-bootstrap";
 
-function SignupModal({ show, handleClose }) {
+function SignupModal({ show, handleClose, onSignupSuccess }) {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    username: "",
     email: "",
-    address: "",
-    age: "",
-    dob: "",
-    sex: "",
-    password: "",
-    confirmPassword: "",
+    phone: "",
   });
 
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+
+  // When the modal is open we lock background scrolling and preserve scroll position.
+  useEffect(() => {
+    if (!show) return;
+
+    const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    // lock body in place
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    // store the scroll position so we can restore it on close
+    document.body.dataset.modalScrollY = String(scrollY);
+
+    return () => {
+      // restore
+      const stored = Number(document.body.dataset.modalScrollY || 0);
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      delete document.body.dataset.modalScrollY;
+      window.scrollTo(0, stored);
+    };
+  }, [show]);
 
   if (!show) return null;
 
@@ -32,24 +51,27 @@ function SignupModal({ show, handleClose }) {
     e.preventDefault();
     setError("");
 
-    if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.username ||
-      !formData.email ||
-      !formData.password
-    ) {
-      setError("Please fill in all required fields.");
+    if (!formData.firstName || !formData.lastName || !formData.email) {
+      setError("Please provide first name, last name and a valid email.");
       return;
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
+    // basic phone normalization/allow optional
+    if (formData.phone && !/^\+?[0-9\s()-]{7,20}$/.test(formData.phone)) {
+      setError("Please enter a valid phone number or leave it blank.");
       return;
     }
 
     console.log("User registered:", formData);
     setSubmitted(true);
+
+    // Notify parent that signup succeeded (simulate immediate login)
+    if (onSignupSuccess) {
+      const user = { name: `${formData.firstName} ${formData.lastName}`, email: formData.email };
+      onSignupSuccess(user);
+    }
+    // close the modal
+    if (handleClose) handleClose();
   };
 
   return (
@@ -87,146 +109,55 @@ function SignupModal({ show, handleClose }) {
                 </div>
               )}
 
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>First Name *</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      placeholder="Enter first name"
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Last Name *</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      placeholder="Enter last name"
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Username *</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="username"
-                      value={formData.username}
-                      onChange={handleChange}
-                      placeholder="Choose a username"
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Email *</Form.Label>
-                    <Form.Control
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="Enter email"
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-
               <Form.Group className="mb-3">
-                <Form.Label>Address</Form.Label>
+                <Form.Label>First Name *</Form.Label>
                 <Form.Control
                   type="text"
-                  name="address"
-                  value={formData.address}
+                  name="firstName"
+                  value={formData.firstName}
                   onChange={handleChange}
-                  placeholder="Enter address"
+                  placeholder="First name"
                 />
               </Form.Group>
 
-              <Row>
-                <Col md={4}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Age</Form.Label>
-                    <Form.Control
-                      type="number"
-                      name="age"
-                      value={formData.age}
-                      onChange={handleChange}
-                      placeholder="Age"
-                    />
-                  </Form.Group>
-                </Col>
+              <Form.Group className="mb-3">
+                <Form.Label>Last Name *</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  placeholder="Last name"
+                />
+              </Form.Group>
 
-                <Col md={4}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Date of Birth</Form.Label>
-                    <Form.Control
-                      type="date"
-                      name="dob"
-                      value={formData.dob}
-                      onChange={handleChange}
-                    />
-                  </Form.Group>
-                </Col>
+              <Form.Group className="mb-3">
+                <Form.Label>Email *</Form.Label>
+                <Form.Control
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="you@example.com"
+                />
+              </Form.Group>
 
-                <Col md={4}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Sex (optional)</Form.Label>
-                    <Form.Select
-                      name="sex"
-                      value={formData.sex}
-                      onChange={handleChange}
-                    >
-                      <option value="">Select</option>
-                      <option value="female">Female</option>
-                      <option value="male">Male</option>
-                      <option value="other">Other</option>
-                      <option value="prefer_not_to_say">
-                        Prefer not to say
-                      </option>
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-              </Row>
+              <Form.Group className="mb-3">
+                <Form.Label>Phone (optional)</Form.Label>
+                <Form.Control
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="(555) 555-5555"
+                />
+              </Form.Group>
 
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Password *</Form.Label>
-                    <Form.Control
-                      type="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder="Create password"
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col md={6}>
-                  <Form.Group className="mb-4">
-                    <Form.Label>Confirm Password *</Form.Label>
-                    <Form.Control
-                      type="password"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      placeholder="Confirm password"
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+              <p className="text-muted small">
+                Message and data rates may apply. By submitting your phone number, you consent to being contacted by affordahouse.com
+                <br />
+                This site is protected by reCAPTCHA and the <a href="/privacy">Privacy Policy</a> and the <a href="https://policies.google.com/terms" target="_blank" rel="noreferrer">Google Terms of Service</a> apply.
+              </p>
 
               <div className="d-grid">
                 <Button type="submit" className="btn btn-primary signup-submit py-2">

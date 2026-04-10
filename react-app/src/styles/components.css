@@ -1,0 +1,273 @@
+/* components.css - cards, panels, signup/login modals and other components */
+:root {
+  --profile-panel-min: 320px;
+  --profile-panel-max-sub: 266px; /* used as calc(100vh - var(--profile-panel-max-sub)) */
+}
+
+.glass-card {
+  border-radius: 18px;
+  padding: 26px;
+  height: 100%;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s ease;
+  color: #1f2937;
+}
+
+/* Make glass-cards inside the main sections visually match the section background */
+.main_sec .glass-card {
+  /* make the whole card a soft gray so it contrasts slightly with the section */
+  background: #bebfc2e7; /* light gray */
+  border: 1px solid rgba(0,0,0,0.04);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.03);
+}
+
+/* subtle interior panel inside cards to separate property meta from other content */
+.main_sec .glass-card .property-meta {
+  background: rgba(255,255,255,0.6); /* slightly lighter panel inside the gray card */
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-top: 8px;
+  color: #374151;
+  font-size: 14px;
+}
+
+.main_sec .glass-card.has-image .property-meta {
+  background: rgba(255,255,255,0.92);
+}
+
+.main_sec .glass-card.map-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06);
+  margin-top: 16px; /* separate the map from the preceding text */
+}
+
+/* Transparent variant for pages that should show the section background */
+.glass-card.transparent {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  color: inherit;
+}
+
+/* Compact panel variant (used inside Profile) */
+.panel--compact {
+  /* centralized sizing for all compact panels used in Profile */
+  min-height: var(--profile-panel-min);
+  /* respect viewport while leaving room for header/footer; controlled by variable */
+  max-height: calc(100vh - var(--profile-panel-max-sub));
+  overflow-y: auto; /* internal scrolling */
+}
+
+
+.main_sec .glass-card.transparent .property-meta {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* ===== SIGNUP PAGE ===== */
+.signup-page {
+  background:
+    radial-gradient(circle at top left, rgba(47, 107, 255, 0.08), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+  min-height: 100vh;
+  padding: 120px 20px 60px;
+}
+
+.signup-card {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(14px);
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+}
+
+.signup-card .form-label {
+  color: #374151;
+  font-weight: 500;
+}
+
+.signup-card .form-control,
+.signup-card .form-select {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #1f2937;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.signup-card .form-control::placeholder {
+  color: #9ca3af;
+}
+
+.signup-card .form-control:focus,
+.signup-card .form-select:focus {
+  background: #ffffff;
+  color: #1f2937;
+  border-color: #2f6bff;
+  box-shadow: 0 0 0 0.2rem rgba(47, 107, 255, 0.15);
+}
+
+.signup-card .text-muted {
+  color: #6b7280 !important;
+}
+
+/* ===== LOGIN PANEL ===== */
+.login-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.45s ease, visibility 0.45s ease;
+  z-index: 1040;
+}
+
+.login-backdrop.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.login-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: min(720px, 100%);
+  height: 100vh;
+  background: #ffffff;
+  color: #1f2937;
+  box-shadow: 20px 0 60px rgba(0, 0, 0, 0.2);
+  transform: translateX(-100%);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 1050;
+  overflow-y: auto;
+}
+
+.login-panel.open {
+  transform: translateX(0);
+}
+
+.login-panel-inner {
+  padding: 110px 32px 32px;
+}
+
+.login-subtext {
+  color: #6b7280;
+}
+
+.login-panel .form-label {
+  color: #374151;
+  font-weight: 500;
+}
+
+.login-panel .form-control,
+.login-panel .form-select {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #1f2937;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.login-panel .form-control::placeholder {
+  color: #9ca3af;
+}
+
+.login-panel .form-control:focus,
+.login-panel .form-select:focus {
+  background: #ffffff;
+  color: #1f2937;
+  border-color: #2f6bff;
+  box-shadow: 0 0 0 0.2rem rgba(47, 107, 255, 0.18);
+}
+
+/* ===== SIGNUP MODAL OVERRIDES ===== */
+.signup-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.signup-modal{
+  width: min(720px, 92%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  border-radius: 10px !important;
+  padding: 28px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.2);
+  position: relative;
+}
+
+.signup-close{
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  border: none;
+  background: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.signup-card{
+  border-radius: 10px !important;
+}
+
+/* Defensive rounding overrides inside signup modal */
+.signup-modal, 
+.signup-modal .modal-dialog, 
+.signup-modal .modal-content, 
+.signup-modal .card, 
+.signup-modal .card-body, 
+.signup-modal .signup-card,
+.signup-modal .card > *,
+.signup-modal * {
+  border-radius: 10px !important;
+  overflow: hidden !important;
+}
+
+.signup-modal .rounded,
+.signup-modal .rounded-top,
+.signup-modal .rounded-bottom,
+.signup-modal .rounded-left,
+.signup-modal .rounded-right,
+.signup-modal .rounded-circle,
+.signup-modal .rounded-0 {
+  border-radius: 10px !important;
+}
+
+/* Static contact card (inline, below updates). Transparent background, no visible box. */
+.contact-card-static {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.contact-card-static .contact-inner {
+  display: block;
+  padding: 12px 0;
+  background: transparent; /* respect page background */
+  border: none; /* remove visible box */
+  box-shadow: none;
+  text-align: center;
+}
+
+.contact-card-static .contact-link {
+  color: #374151;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.contact-card-static .contact-link:hover {
+  color: #2f6bff;
+  text-decoration: underline;
+}
